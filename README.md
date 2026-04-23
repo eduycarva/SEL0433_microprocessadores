@@ -28,3 +28,8 @@ O funcionamento do sistema é dividido em blocos:
 - Timer 1 é configurado no Modo 2, que nos permite utilizar um contador de 8 bits com auto-reload. 
 Ao inserir o valor de 255 (0FFh) em TH1 e TL1, basta um pulso do motor para o contador estourar e gerar uma interrupção imediata no microcontrolador, que pula diretamente para 001Bh, o vetor de interrupção de memória. Dentro do bloco, o INC CONTADOR incrementa o valor de contador em 1
 - Por fim, as interrupções são habilitadas e o Timer é ligado
+
+### Loop principal
+- Após a inicialização, o microcontrolador fica no loop executando continuamente duas tarefas, 'VERIFICA_CHAVE' e 'ATUALIZA_DISPLAY'
+- 'VERIFICA_CHAVE': monitora o botão de mudança de direção
+- 'ATUALIZA_DISPLAY': atualiza a saída no display sete segmentos
