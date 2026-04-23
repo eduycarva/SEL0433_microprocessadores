@@ -23,8 +23,8 @@ O código fornecido atende a todos os requisitos solicitados:
 O funcionamento do sistema é dividido em blocos:
 
 ### Setup
-*Configuramos o ponteiro de pilha (stack pointer) em uma área segura
-*Zeramos F0 (informação do sentido de rotação do motor) e CONTADOR (informação da quantidade de rotações feitas)
-*Timer 1 é configurado no Modo 2, que nos permite utilizar um contador de 8 bits com auto-reload. 
+- Configuramos o ponteiro de pilha (stack pointer) em uma área segura
+- Zeramos F0 (informação do sentido de rotação do motor) e CONTADOR (informação da quantidade de rotações feitas)
+- Timer 1 é configurado no Modo 2, que nos permite utilizar um contador de 8 bits com auto-reload. 
 Ao inserir o valor de 255 (0FFh) em TH1 e TL1, basta um pulso do motor para o contador estourar e gerar uma interrupção imediata no microcontrolador, que pula diretamente para 001Bh, o vetor de interrupção de memória. Dentro do bloco, o INC CONTADOR incrementa o valor de contador em 1
-*Por fim, as interrupções são habilitadas e o Timer é ligado
+- Por fim, as interrupções são habilitadas e o Timer é ligado
