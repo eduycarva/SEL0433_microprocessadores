@@ -4,6 +4,7 @@ Este repositório é referente à matéria SEL0433 - Aplicação de microprocess
 
 SEL0433 - Aplicação de Microprocessadores  
 Eduardo Yumoto Carvalheira - 15636150
+
 Thayson Pereira Alves - 14681087
 
 ## Sobre o Projeto
