@@ -9,6 +9,8 @@ Thayson Pereira Alves - 14681087
 ## Sobre o Projeto
 Este projeto consiste no desenvolvimento de um módulo dosador rotativo acionado por motor DC, projetado para operar em uma linha de produção de uma fábrica de parafusos. O sistema foi desenvolvido em linguagem Assembly para a família de microcontroladores 8051.
 
+Observação: o código está extensamente comentado com muitas explicações, o que não estiver explicado neste repositório está explicado no .asm
+
 ## Requisitos Implementados (Entrega Final)
 O código fornecido atende a todos os requisitos solicitados:
 - Contagem e exibição em display de 7 segmentos de 0 a 9.
