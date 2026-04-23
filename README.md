@@ -4,11 +4,12 @@ Este repositório é referente à matéria SEL0433 - Aplicação de microprocess
 
 SEL0433 - Aplicação de Microprocessadores  
 Eduardo Yumoto Carvalheira - 15636150
+Thayson Pereira Alves - 14681087
 
-# Sobre o Projeto
+## Sobre o Projeto
 Este projeto consiste no desenvolvimento de um módulo dosador rotativo acionado por motor DC, projetado para operar em uma linha de produção de uma fábrica de parafusos. O sistema foi desenvolvido em linguagem Assembly para a família de microcontroladores 8051.
 
-# Requisitos Implementados (Entrega Final)
+## Requisitos Implementados (Entrega Final)
 O código fornecido atende a todos os requisitos solicitados:
 - Contagem e exibição em display de 7 segmentos de 0 a 9.
 - Limitação do contador a um ciclo (0 a 9), reiniciando o Timer 1 automaticamente ao atingir 10 eventos.
