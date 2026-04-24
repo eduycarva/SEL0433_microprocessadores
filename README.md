@@ -42,7 +42,26 @@ As interrupções são habilitadas com ```SETB ET1``` e ```SETB EA```. Por fim, 
 
 ## Rotina de interrupção do timer1 (ISR)
 Quando há o estouro do timer1, o programa solta o endereço que é o vetor de interrupção. Assim com o ```PUSH ACC``` e ```PUSH PSW``` é salvo o estado atual do acumulador ```ACC``` do ```PSW``` na pilha. Com o ```INC CONTADOR``` é incrementado a variável de voltas. 
+
 Após isso, com o ```MOV A, CONTADOR``` e ```CJNE A, #10, FIM_ISR```, é limitado para o contador ir de 0 a 9 e reiniciando após o próximo pulso. O valor do ```CONTADOR``` é movido para ```A``` e comparado com ```#10```. Se não for 10, ele vai para o ```FIM_ISR```. Se for 10, ele chama a call ```REINICIA_TIMER``` para zerar a contagem.
+
 Com o ```POP PSW``` e ```POP ACC```, restaura o ```PSW``` e o ```ACC``` para o estado anterior e com o ```RETI``` retorna da interrupção.
 
 ## Loop principal
+O programa entra no ```LOOP_PRINCIPAL``` onde fica verificando a chave com a ```ACALL VERIFICA_CHAVE``` e atualiza o numero de voltas no display com ```ACALL ATUALIZA_DISPLAY```.
+
+Com o ```VERIFICA_CHAVE```, o programa lê o pino ```P2.0``` e se estiver em ```0```, ele verifica a flag ```F0```. Caso essa flag já for zero, não realiza nada, mas se for ```1```, ele zera ```F0``` e chama a call ```MUDANCA_DIRECAO``` para inverter o sentido de giro do motor. O processo é semelhante quando ```P2.0``` já estiver em 1.
+
+```VERIFICA_CHAVE:```
+    ```JB P2.0, CHAVE_EM_1```
+```CHAVE_EM_0:```
+    ```JNB F0, FIM_VERIFICA```
+    ```CLR F0```
+    ```ACALL MUDANCA_DIRECAO```
+    ```SJMP FIM_VERIFICA```
+```CHAVE_EM_1:```
+    ```JB F0, FIM_VERIFICA```
+    ```SETB F0```
+    ```ACALL MUDANCA_DIRECAO```
+```FIM_VERIFICA:```
+    ```RET```
