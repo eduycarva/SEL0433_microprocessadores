@@ -40,3 +40,9 @@ Nesta parte o codigo configura o Timer1 no modo 2 com ```MOV TMOD, #60h``` onde 
 De modo geral, a cada pulso que o motor gera, o ```TL1``` incrementa. Como ele começa do ```0FFh```, o primeiro pulso faz o contador "estourar" e voltar para o ```00h```, gerando uma interrupção, que é usada usada para contar uma volta completa.
 As interrupções são habilitadas com ```SETB ET1``` e ```SETB EA```. Por fim, ```SETB TR1``` liga o Timer1.
 
+## Rotina de interrupção do timer1 (ISR)
+Quando há o estouro do timer1, o programa solta o endereço que é o vetor de interrupção. Assim com o ```PUSH ACC``` e ```PUSH PSW``` é salvo o estado atual do acumulador ```ACC``` do ```PSW``` na pilha. Com o ```INC CONTADOR``` é incrementado a variável de voltas. 
+Após isso, com o ```MOV A, CONTADOR``` e ```CJNE A, #10, FIM_ISR```, é limitado para o contador ir de 0 a 9 e reiniciando após o próximo pulso. O valor do ```CONTADOR``` é movido para ```A``` e comparado com ```#10```. Se não for 10, ele vai para o ```FIM_ISR```. Se for 10, ele chama a call ```REINICIA_TIMER``` para zerar a contagem.
+Com o ```POP PSW``` e ```POP ACC```, restaura o ```PSW``` e o ```ACC``` para o estado anterior e com o ```RETI``` retorna da interrupção.
+
+## Loop principal
