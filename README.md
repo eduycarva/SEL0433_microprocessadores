@@ -9,8 +9,6 @@ Thayson Pereira Alves - 14681087
 ## Sobre o Projeto
 Este projeto consiste no desenvolvimento de um módulo dosador rotativo acionado por motor DC, projetado para operar em uma linha de produção de uma fábrica de parafusos. O sistema foi desenvolvido em linguagem Assembly para a família de microcontroladores 8051.
 
-Observação: o código está extensamente comentado com muitas explicações, o que não estiver explicado neste repositório está explicado no .asm
-
 ## Requisitos Implementados (Entrega Final)
 O código fornecido atende a todos os requisitos solicitados:
 - Contagem e exibição em display de 7 segmentos de 0 a 9.
@@ -20,18 +18,7 @@ O código fornecido atende a todos os requisitos solicitados:
 - Reset automático da contagem de voltas sempre que a direção do motor for invertida.
 - Indicação visual do sentido de rotação utilizando o ponto decimal (bit P1.7) do display de 7 segmentos.
 
-## Passo a passo da lógica do programa
+## Lógica de implementação do código
+Esta seção contém a explicação do código. Na programa, há pesquenos comentários feitos para entendimento geral.
 
-O funcionamento do sistema é dividido em blocos:
-
-### 1. Setup
-- Configuramos o ponteiro de pilha (stack pointer) em uma área segura
-- Zeramos F0 (informação do sentido de rotação do motor) e CONTADOR (informação da quantidade de rotações feitas)
-- Timer 1 é configurado no Modo 2, que nos permite utilizar um contador de 8 bits com auto-reload. 
-Ao inserir o valor de 255 (0FFh) em TH1 e TL1, basta um pulso do motor para o contador estourar e gerar uma interrupção imediata no microcontrolador, que pula diretamente para 001Bh, o vetor de interrupção de memória. Dentro do bloco, o INC CONTADOR incrementa o valor de contador em 1
-- Por fim, as interrupções são habilitadas e o Timer é ligado
-
-### 2. Loop principal
-- Após a inicialização, o microcontrolador fica no loop executando continuamente duas tarefas, 'VERIFICA_CHAVE' e 'ATUALIZA_DISPLAY'
-- 'VERIFICA_CHAVE': monitora o botão de mudança de direção
-- 'ATUALIZA_DISPLAY': atualiza a saída no display sete segmentos
+##Inicio do código
