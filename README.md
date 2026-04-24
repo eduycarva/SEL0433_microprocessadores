@@ -24,6 +24,4 @@ Esta seção contém a explicação do código. Na programa, há pesquenos comen
 ##Inicio do código
 O programa começa definindo a variável do contador na memória RAM na posição 30h, que serve para guardar o numero de voltas do motor, indo de 0 a 9 voltas. Após isso, o programa pula para a rotina INICIO.
 
-'''CONTADOR EQU 30H
-ORG 0000h
-    SJMP INICIO'''
+```CONTADOR EQU 30H ORG 0000h SJMP INICIO```
