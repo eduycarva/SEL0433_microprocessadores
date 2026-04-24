@@ -94,3 +94,5 @@ Por fim, a rotina ```ATUALIZA_DISPLAY``` pega o valor atual do ```CONTADOR``` e 
 Para o controle do ponto decimal que usa a mesma flag ```F0``` para decidir se o ponto decimal acende o apaga de acordo com o sentido de giro do motor. Se ```F0``` for ```0```, o ponto apaga com ```SETB ACC.7``` e se for ```1```, o ponto decimal acente com ```CLR ACC.7```.
 
 Ao fim do código tem a tabela de 7 segmentos ```TAB7SEG``` que é uma tabela de dados na memória de programa ```ORG 0200h``` que armazena os códigos binários pra exibir de 0 a 9 no display de 7 segmentos.
+
+## Considerações Finais
