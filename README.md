@@ -71,15 +71,26 @@ Quando a mudança de direção é acionada pela call ```MUDANCA_DIRECAO```, é c
 
 Com essa rotina é possível controlar o sentido de giro do motor com os pinos ```P3.0``` e ```P3.1```. Ele verifica a flag ```F0```, se ```F0``` for 0 (SENTIDO_0): ele seta o bit ```SETB P3.0``` e reseta o bit ```CLR P3.1``` assim configurando o motor para um sentido de rotação. Para o outro sentido de rotação, quando ```F0``` é 1 (SENTIDO_1), o processo inverso é feito, reseta o ```CLR P3.0``` e seta o ```SETB P3.1``` para levar o motor a girar no outro sentido.
 
-```ATUALIZA_MOTOR:```
-    ```JB F0, SENTIDO_1```
-```SENTIDO_0:```
-    ```SETB P3.0```
-    ```CLR P3.1```
-    ```RET```
-```SENTIDO_1:```
-    ```CLR P3.0```
-    ```SETB P3.1```
-    ```RET```
+```ATUALIZA_MOTOR:```  
+    ```JB F0, SENTIDO_1```  
+```SENTIDO_0:```  
+    ```SETB P3.0```  
+    ```CLR P3.1```   
+    ```RET```  
+```SENTIDO_1:```  
+    ```CLR P3.0```  
+    ```SETB P3.1```  
+    ```RET```  
 
-## Display de 7 segmentos[
+## Display de 7 segmentos
+Por fim, a rotina ```ATUALIZA_DISPLAY``` pega o valor atual do ```CONTADOR``` e usa a tabela (TAB7SEG) para encontrar o código em binário que é correspondente ao dígito para o display de 7seg e envia para a porta ```P1```.
+
+```ATUALIZA_DISPLAY:```  
+    ```MOV A, CONTADOR```  
+    ```MOV DPTR, #TAB7SEG```  
+    ```MOVC A, @A+DPTR```  
+    ```MOV P1, A```  
+    ```RET```  
+Para o controle do ponto decimal que usa a mesma flag ```F0``` para decidir se o ponto decimal acende o apaga de acordo com o sentido de giro do motor. Se ```F0``` for ```0```, o ponto apaga com ```SETB ACC.7``` e se for ```1```, o ponto decimal acente com ```CLR ACC.7```.
+
+Ao fim do código tem a tabela de 7 segmentos ```TAB7SEG``` que é uma tabela de dados na memória de programa ```ORG 0200h``` que armazena os códigos binários pra exibir de 0 a 9 no display de 7 segmentos.
