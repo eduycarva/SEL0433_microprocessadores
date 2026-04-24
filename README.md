@@ -28,6 +28,6 @@ O programa começa definindo a variável do contador na memória RAM na posiçã
 ```ORG 0000h```  
 ```SJMP INICIO```  
 
-Na rotina INICIO, configura-se a pilha ```Sp, #40h```, com ```F0``` a flag que armazena e indica o sentido de rotação do motor. Zera-se o contador de voltas com ```MOV CONTADOR, #0``` e com ```ACALL ATUALIZA_MOTOR``` garante o primeiro sentido de giro do motor.
+Na rotina INICIO, configura-se a pilha ```SP, #40h```, com ```F0``` a flag que armazena e indica o sentido de rotação do motor. Zera-se o contador de voltas com ```MOV CONTADOR, #0``` e com ```ACALL ATUALIZA_MOTOR``` garante o primeiro sentido de giro do motor.
 
 ## Cong. do Timer 1
