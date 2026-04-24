@@ -52,16 +52,20 @@ O programa entra no ```LOOP_PRINCIPAL``` onde fica verificando a chave com a ```
 
 Com o ```VERIFICA_CHAVE```, o programa lê o pino ```P2.0``` e se estiver em ```0```, ele verifica a flag ```F0```. Caso essa flag já for zero, não realiza nada, mas se for ```1```, ele zera ```F0``` e chama a call ```MUDANCA_DIRECAO``` para inverter o sentido de giro do motor. O processo é semelhante quando ```P2.0``` já estiver em 1.
 
-```VERIFICA_CHAVE:```
-    ```JB P2.0, CHAVE_EM_1```
-```CHAVE_EM_0:```
-    ```JNB F0, FIM_VERIFICA```
-    ```CLR F0```
-    ```ACALL MUDANCA_DIRECAO```
-    ```SJMP FIM_VERIFICA```
-```CHAVE_EM_1:```
-    ```JB F0, FIM_VERIFICA```
-    ```SETB F0```
-    ```ACALL MUDANCA_DIRECAO```
-```FIM_VERIFICA:```
-    ```RET```
+```VERIFICA_CHAVE:```  
+    ```JB P2.0, CHAVE_EM_1```  
+```CHAVE_EM_0:```  
+    ```JNB F0, FIM_VERIFICA```  
+    ```CLR F0```  
+    ```ACALL MUDANCA_DIRECAO```   
+    ```SJMP FIM_VERIFICA```  
+```CHAVE_EM_1:```  
+    ```JB F0, FIM_VERIFICA```   
+    ```SETB F0```  
+    ```ACALL MUDANCA_DIRECAO```  
+```FIM_VERIFICA:```  
+    ```RET```  
+Quando a mudança de direção é acionada pela call ```MUDANCA_DIRECAO```, é chamada a call ```ATUALIZA_MOTOR``` para comutar os pinos de controle do motor. Além disso, é chamado também o ```ACALL REINICIA_TIMER``` para zerar o timer1 logo o contador, fazendo o reset automático com a inversão de sentido de giro do motor.
+
+## Sentido de giro do motor
+
