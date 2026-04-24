@@ -69,3 +69,17 @@ Quando a mudança de direção é acionada pela call ```MUDANCA_DIRECAO```, é c
 
 ## Sentido de giro do motor
 
+Com essa rotina é possível controlar o sentido de giro do motor com os pinos ```P3.0``` e ```P3.1```. Ele verifica a flag ```F0```, se ```F0``` for 0 (SENTIDO_0): ele seta o bit ```SETB P3.0``` e reseta o bit ```CLR P3.1``` assim configurando o motor para um sentido de rotação. Para o outro sentido de rotação, quando ```F0``` é 1 (SENTIDO_1), o processo inverso é feito, reseta o ```CLR P3.0``` e seta o ```SETB P3.1``` para levar o motor a girar no outro sentido.
+
+```ATUALIZA_MOTOR:```
+    ```JB F0, SENTIDO_1```
+```SENTIDO_0:```
+    ```SETB P3.0```
+    ```CLR P3.1```
+    ```RET```
+```SENTIDO_1:```
+    ```CLR P3.0```
+    ```SETB P3.1```
+    ```RET```
+
+## Display de 7 segmentos[
