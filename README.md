@@ -31,7 +31,7 @@ O programa começa definindo a variável do contador na memória RAM na posiçã
 Na rotina INICIO, configura-se a pilha ```SP, #40h```, com ```F0``` a flag que armazena e indica o sentido de rotação do motor. Zera-se o contador de voltas com ```MOV CONTADOR, #0``` e com ```ACALL ATUALIZA_MOTOR``` garante o primeiro sentido de giro do motor.
 
 ## Configuração do Timer 1
-Nesta parte o codigo configura o Timer1 no modo 2 com ```MOV TMOD, #60h``` onde expressa um contador de 8 bits com auto-reload, carregando ```0FFh``` em ```TH1``` e ```Tl1```
+Nesta parte o codigo configura o Timer1 no modo 2 com ```MOV TMOD, #60h``` onde expressa um contador de 8 bits com auto-reload, carregando ```0FFh``` em ```TH1``` e ```Tl1```. ```60h``` em binário é ```0110 0000```. Isso significa que o t0 está zerado, e t1 recebe as informações: bit 7 = 0 - timer controlado pelo hardware; bit 6 = 1 - atua como contador; bit 5 e 4 = 01 - configuração do modo 2: contador de 8 bits (até 256) com auto-reload. Assim, como o contador de ```TH1``` tem valor 255, assim que uma volta completa do motor ocorrer, seu valor é incrementado em 1 e gera uma interrupção, que aumenta o valor do nosso contador. Por fim, ```TH1``` assume o valor de ```TL1``` e volta à contagem de 255, preparado para a próxima volta do motor.
 
 ```MOV TMOD, #60h```  
 ```MOV TH1, #0FFh```  
