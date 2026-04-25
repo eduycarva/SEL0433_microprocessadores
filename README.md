@@ -96,3 +96,9 @@ Para o controle do ponto decimal que usa a mesma flag ```F0``` para decidir se o
 Ao fim do código tem a tabela de 7 segmentos ```TAB7SEG``` que é uma tabela de dados na memória de programa ```ORG 0200h``` que armazena os códigos binários pra exibir de 0 a 9 no display de 7 segmentos.
 
 ## Considerações Finais
+O desenvolvimento do projeto permitiu uma compreensão aprofundada sobre a arquitetura da família dos microntrontroladores da família MCS-51, através principalmente da metodologia de project based learning, aplicada através dos checkpoints. Desse modo, os pequenos aprendizados feitos nos checkpoints facilitaram o projeto final, tal que a maioria da lógica das subrotinas do projeto final já havia sido pensado nas tarefas anteriores.
+
+A transição dos checkpoints iniciais para a entrega final consolidou ideias fundamentais como:
+* **Programação em baixo nível:** Manipulamos diretamente registradores, controlando bit a bit, gerenciamento de pilhas, e ponteiros
+* **Interrupções de hardware:** O maior desafio desse projeto final, em que evoluímos de um sistema de verificação contínua para o uso do Timer 1 no modo 2 de auto-reload, garantindo que a contagem de voltas seja feita de forma assíncrona.
+* **Interfaceamento:** A integração de várias entradas e saídas no mesmo ambiente, possibilitando um sistema que integre logicamente as chaves de controle, acionamento do motor DC e a contagem no display de 7 segmentos 
