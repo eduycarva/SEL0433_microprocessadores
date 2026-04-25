@@ -11,13 +11,13 @@ ORG 0000h
 
 ; INTERRUPCAO DO TIMER 1
 
-ORG 001BH           ; endereco da interrupcao do timer 1
+ORG 001BH           ; endereco da interrupção do timer 1
     PUSH ACC        ; salva o Acumulador e PSW na pilha 
     PUSH PSW
     
-    INC CONTADOR    ; incrementa a variavel de processo 
+    INC CONTADOR    ; incrementa a variável de processo 
     MOV A, CONTADOR
-    CJNE A, #10, FIM_ISR ; compara com 10. Se nao for 10, vai para o fim da ISR
+    CJNE A, #10, FIM_ISR ; compara com 10. Se não for 10, vai para o fim da ISR
     
     ; Se atingiu 10 voltas:
     ACALL REINICIA_TIMER ; chama rotina dedicada para zerar o processo
@@ -25,7 +25,7 @@ ORG 001BH           ; endereco da interrupcao do timer 1
 FIM_ISR:
     POP PSW         ; restaura o contexto
     POP ACC
-    RETI            ; retorna da interrupcao
+    RETI            ; retorna da interrupção
 
 ; PROGRAMA PRINCIPAL
 
@@ -34,22 +34,22 @@ INICIO:
     MOV SP, #40H        ; configura a pilha para uma area segura na RAM
 
     ; inicializacao de variaveis e motor
-    CLR F0              ; F0 armazena o estado atual do giro 
-    MOV CONTADOR, #0    ; zera a contagem de voltas inicial
-    ACALL ATUALIZA_MOTOR; garante que os pinos iniciem no estado correto
+    CLR F0               ; F0 armazena o estado atual do giro 
+    MOV CONTADOR, #0     ; zera a contagem de voltas inicial
+    ACALL ATUALIZA_MOTOR ; garante que os pinos iniciem no estado correto
 
-; Configuracao do Timer 1
+; Configuração do Timer 1
 ; TMOD é um registrador de 8 bits:
 ; bits 7 ao 4 configuram o timer 1
 ; bits 3 ao 0 configuram o timer 0
     MOV TMOD, #60h 
     
-; carrega 0FFh. assim, a cada pulso do motor, ocorre o overflow e a interrupcao
+; carrega 0FFh. assim, a cada pulso do motor, ocorre o overflow e a interrupção
 ; 0FFh = 255. Como o contador vai até 256, ao somar após o clock, TL1 estoura, e vai para 00h.
     MOV TH1, #0FFh      
     MOV TL1, #0FFh
 
-; habilita as interrupcoes e inicia o Timer
+; habilita as interrupções e inicia o Timer
     SETB ET1            ; habilita interrupção do Timer 1
     SETB EA             ; habilita chave geral de interrupções
     SETB TR1            ; liga o Timer 1
@@ -59,7 +59,7 @@ LOOP_PRINCIPAL:
     ACALL ATUALIZA_DISPLAY ; atualiza o display
     SJMP LOOP_PRINCIPAL    ; fica neste loop eternamente
 
-
+; 1. verificação da mudança de sentido
 ;chave acionada -> chave 0
 ;chave não acionada -> chave1
 VERIFICA_CHAVE:
@@ -83,6 +83,7 @@ CHAVE_EM_1:
 FIM_VERIFICA:
     RET
 
+; 2. ações quando ocorre mudança de sentido
 MUDANCA_DIRECAO:
     ACALL ATUALIZA_MOTOR  ; inverte os pinos do atuador
     ACALL REINICIA_TIMER  ; sempre que mudar sentido, reinicia contagem
@@ -92,8 +93,8 @@ MUDANCA_DIRECAO:
 ; 3. atualiza pinos do Motor em P3
 ATUALIZA_MOTOR:
     JB F0, SENTIDO_1 ; se F0 = 1, entao gira no sentido1
-                     ;se F0=0, o sentido1 não é executado.
- 
+                     ; se F0=0, o sentido1 não é executado.
+; tabela da verdade do sentido do giro 
 SENTIDO_0:             
     SETB P3.0          
     CLR P3.1         
@@ -103,20 +104,20 @@ SENTIDO_1:
     SETB P3.1          
     RET  
 
-; 4. rotina dedicada de reinicializacao do Timer
+; 4. rotina de reinicializacao do Timer
 REINICIA_TIMER:
     CLR TR1             ; para o timer temporariamente
     MOV CONTADOR, #0    ; zera o limite de voltas
     MOV TH1, #0FFH      ; recarrega os registradores
-    MOV TL1, #0FFH
+    MOV TL1, #0FFH      ; molde para TH1
     SETB TR1            ; seta o timer
     RET
 
-; 5. exibicao no display
+; 5. exibição no display
 ATUALIZA_DISPLAY:
     MOV A, CONTADOR     ; pega a volta atual
-    MOV DPTR, #TAB7SEG
-    MOVC A, @A+DPTR     ; busca o binario do numero na tabela
+    MOV DPTR, #TAB7SEG  
+    MOVC A, @A+DPTR     ; busca o binário do numero na tabela
 
 ; acende ou apaga ponto decimal
     JNB F0, APAGA_PONTO 
