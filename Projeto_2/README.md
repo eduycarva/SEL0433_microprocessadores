@@ -127,3 +127,23 @@ void FormatarTemperatura(unsigned int valor, char *saida) {
     }
 }
 ```
+
+## Montagem da linha 2 do LCD (`MontarLinhaRestam`)
+ 
+A função `MontarLinhaRestam` monta uma string fixa de 16 caracteres (largura do LCD) com o tempo restante. Os primeiros 7 caracteres sempre formam `"Restam:"`. Para valores de dois dígitos, os caracteres 9 e 10 recebem dezenas e unidades; para um dígito, o campo é deslocado à direita com espaço extra. O campo é encerrado com `'s'` e preenchido com espaços até a posição 16 para apagar resíduos de escritas anteriores.
+ 
+```c
+void MontarLinhaRestam(short tempo, char *saida) {
+    saida[0]='R'; saida[1]='e'; /* ... */ saida[6]=':';
+    if (tempo >= 10) {
+        saida[9]  = (tempo / 10) + '0';
+        saida[10] = (tempo % 10) + '0';
+    } else {
+        saida[9] = ' ';
+        saida[10] = tempo + '0';
+    }
+    saida[11] = 's';
+    saida[12]=' '; saida[13]=' '; saida[14]=' '; saida[15]=' '; saida[16]='\0';
+}
+```
+
