@@ -109,7 +109,7 @@ if (TMR1IF_bit) {
 ```
 ## Formatação da temperatura (`FormatarTemperatura`)
  
-Para cumprir o requisito de exibir a temperatura sem uso de `float`, a função `FormatarTemperatura` recebe um valor em ponto fixo com uma casa decimal (ex.: `temp_ponto_fixo = 253` representa 25,3 °C) e monta manualmente uma string de 10 caracteres. Para valores abaixo de 100 °C, extrai dezenas, unidades e décimos por divisão e módulo inteiro. Para 100 °C exato, utiliza a string literal `"100.0°C   "`. O caractere de grau é inserido como código ASCII 223 (compatível com o controlador HD44780).
+Para cumprir o requisito de exibir a temperatura sem uso de `float`, a função `FormatarTemperatura` recebe um valor em ponto fixo com uma casa decimal e monlta manualmente uma string de 10 caracteres. Para valores abaixo de 100 °C, extrai dezenas, unidades e décimos por divisão e módulo inteiro. O caractere de grau é inserido como código ASCII 223 (compatível com o controlador HD44780).
  
 ```c
 void FormatarTemperatura(unsigned int valor, char *saida) {
