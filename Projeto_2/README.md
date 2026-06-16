@@ -233,10 +233,10 @@ Delay_ms(100);
 ```
 
 ## Considerações Finais
-O desenvolvimento do Projeto 2 permitiu uma compreensão aprofundada sobre os periféricos modernos da família PIC18, em especial o módulo ADC de 10 bits, o sistema de timers de 8 e 16 bits com múltiplos prescalers e o sistema de interrupções com prioridades, contrastando com a arquitetura mais simples do 8051 explorada no Projeto 1.
+O desenvolvimento do Projeto 2 permitiu uma compreensão aprofundada sobre o PIC18,com o módulo ADC de 10 bits, o sistema de timers de 8 e 16 bits e o sistema de interrupções com prioridades.
  
 A transição dos checkpoints para a entrega final consolidou ideias fundamentais como:
 * **Conversão analógico-digital:** A correta configuração do registrador `ADCON1` após a chamada de `ADC_Init` foi essencial para que as tensões de referência externas funcionassem adequadamente, revelando uma limitação conhecida da biblioteca MikroC.
 * **Bases de tempo precisas:** A implementação de duas bases de tempo simultâneas (1 s via TMR0 e 250 ms via TMR1 com subdivisão por software) demonstrou como compor intervalos de tempo longos a partir de estouros rápidos de timer, contornando limitações de prescaler.
-* **ISR ultra-rápida:** A separação entre a detecção do evento (feita na ISR com simples setagem de flag) e o tratamento do evento (feito no loop principal com debounce) é uma prática fundamental em sistemas embarcados para garantir responsividade sem comprometer a estabilidade.
+* **ISR ultra-rápida:** A separação entre a detecção do evento (feita na ISR com simples setagem de flag) e o tratamento do event é uma prática fundamental em sistemas embarcados para garantir responsividade sem comprometer a estabilidade.
 * **Exibição sem ponto flutuante:** A representação da temperatura em ponto fixo e a formatação manual da string de exibição evitam o uso de `float`, economizando memória de dados e tempo de processamento em um microcontrolador de 8 bits.
