@@ -147,3 +147,87 @@ void MontarLinhaRestam(short tempo, char *saida) {
 }
 ```
 
+## Função principal (`main`)
+ 
+**Configurações iniciais:** O registrador `CMCON = 0x07` desabilita os comparadores analógicos do PORTB, liberando os pinos `RB0` e `RB1` para uso como entradas digitais. `TRISB.B0` e `TRISB.B1` são configurados como entradas (botões) e `TRISA.B0` como entrada analógica (canal AN0 do LM35/potenciômetro). O LED tem sua direção configurada como saída e começa apagado.
+ 
+```c
+CMCON = 0x07;
+TRISB.B0 = 1;
+TRISB.B1 = 1;
+TRISA.B0 = 1;
+LED_Resistencia_Direction = 0;
+LED_Resistencia = 0;
+```
+ 
+**Inicialização do LCD e ADC:** O LCD é iniciado e o cursor é desligado. O ADC é inicializado pela função de biblioteca `ADC_Init()` e, logo em seguida, `ADCON1 = 0x3A` é configurado **após** a chamada de `ADC_Init` para corrigir um comportamento conhecido do MikroC: a biblioteca força os bits 4 e 5 de `ADCON1` para 0, o que selecionaria VDD/VSS como referência; o valor `0x3A` configura corretamente `AN2` e `AN3` como tensões de referência externas (Vref+ = 1 V), adequando-se à sensibilidade do LM35.
+ 
+```c
+ADC_Init();
+ADCON1 = 0x3A;
+```
+ 
+**Habilitação das interrupções:** As bordas de descida dos botões são selecionadas com `INTEDG0_bit = 0` e `INTEDG1_bit = 0`. As interrupções individuais de INT0, INT1, TMR0 e TMR1 são habilitadas, assim como o bit de habilitação de periféricos (`PEIE_bit`) e o bit global de interrupções (`GIE_bit`).
+ 
+```c
+INTEDG0_bit = 0; INTEDG1_bit = 0;
+INT0IE_bit = 1;  INT1IE_bit = 1;
+TMR0IE_bit = 1;  TMR1IE_bit = 1;
+PEIE_bit = 1;    GIE_bit = 1;
+```
+ 
+**Loop principal — tratamento dos botões:** A cada iteração do loop infinito, as flags de botão são verificadas. Se `flag_btn0` estiver setada, aplica-se um debounce de 20 ms e confirma-se o nível lógico do pino. Se o botão ainda estiver pressionado e nenhuma contagem estiver em curso (`!em_execucao`), o modo é alternado entre curto e longo. O processo é análogo para `flag_btn1`: ao confirmar o pressionamento, `em_execucao` é setado, os contadores auxiliares são zerados e o timer correspondente ao modo selecionado é configurado e ligado, enquanto o outro é desligado.
+ 
+```c
+if (flag_btn0) {
+    Delay_ms(20);
+    if (PORTB.B0 == 0 && !em_execucao) {
+        modo_tempo = !modo_tempo;
+    }
+    flag_btn0 = 0;
+}
+if (flag_btn1) {
+    Delay_ms(20);
+    if (PORTB.B1 == 0 && !em_execucao) {
+        em_execucao = 1;
+        if (modo_tempo == 0) {
+            tempo_curto = 10;
+            // configura e liga TMR1, desliga TMR0
+        } else {
+            tempo_longo = 60;
+            // configura e liga TMR0, desliga TMR1
+        }
+    }
+    flag_btn1 = 0;
+}
+```
+ 
+**Leitura do sensor e controle do LED:** O valor ADC de 10 bits é lido com `ADC_Get_Sample(0)` (canal AN0). A conversão para temperatura em ponto fixo com uma casa decimal é feita pela expressão `(adc_val * 1000) / 1023`, onde o resultado representa décimos de grau Celsius considerando Vref = 1 V e a sensibilidade do LM35 de 10 mV/°C. Se a temperatura superar 500 (50,0 °C), o LED da resistência é aceso; caso contrário, é apagado.
+ 
+```c
+adc_val = ADC_Get_Sample(0);
+temp_ponto_fixo = ((unsigned long)adc_val * 1000) / 1023;
+if (temp_ponto_fixo > 500) {
+    LED_Resistencia = 1;
+} else {
+    LED_Resistencia = 0;
+}
+```
+ 
+**Atualização do display LCD:** Para evitar o deslocamento do cursor interno do controlador HD44780 causado por múltiplas chamadas parciais de `Lcd_Out`, cada linha do display é composta como uma string completa e escrita de uma única vez. A linha 1 exibe sempre `"Temp: XX.X°C    "`. A linha 2 exibe o tempo restante com `MontarLinhaRestam` quando `em_execucao` está ativo, ou o modo selecionado (`"Modo: 10s       "` ou `"Modo: 60s       "`) quando em standby. Ao final do loop, um `Delay_ms(100)` limita a taxa de atualização do display.
+ 
+```c
+Lcd_Out(1, 1, "Temp: ");
+Lcd_Out(1, 7, txt_temp);
+ 
+if (em_execucao) {
+    MontarLinhaRestam(tempo_mostrar, linha2);
+    Lcd_Out(2, 1, linha2);
+} else {
+    if (modo_tempo == 0)
+        Lcd_Out(2, 1, "Modo: 10s       ");
+    else
+        Lcd_Out(2, 1, "Modo: 60s       ");
+}
+Delay_ms(100);
+```
