@@ -20,5 +20,9 @@ A parte 01 contempla o o controle de um LED RGB com os seguintes requeisitos:
 - Utilização da interface serial UART com informações do incremento e o duty cycles de cada canal.
 
 # Hardware no Wokwi
-A montagem do circuito é uma simples conexão dos terminais do led com o ESP32, passando por resistores de 220 $\Omega$ para limitar a corrente. O esquemático da montagem é vista na figura abaixo.
+A montagem do circuito é uma simples conexão dos terminais do led com o ESP32, passando por resistores de 220 $\Omega$ para limitar a corrente e o pino de catodo comum do LED RGB no terminal GND do ESP32. O esquemático da montagem é vista na figura abaixo.
 <img width="816" height="552" alt="image" src="https://github.com/user-attachments/assets/ae228ce4-7c5a-42aa-a167-ee6b4af84c37" />
+
+# Controle do LED RGB via PWM
+O código começa com a inclução das bibliotecas básicas:
+
