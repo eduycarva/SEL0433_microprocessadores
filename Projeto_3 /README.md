@@ -26,10 +26,10 @@ A montagem do circuito é uma simples conexão dos terminais do led com o ESP32,
 # Controle do LED RGB via PWM
 O código começa com a inclução das bibliotecas básicas:
 
-```<stdio.h>``` Comando básicos e necessários para códigos em C.  
-```<freertos/FreeRTOS.h>``` Sistema operacional do ESP32.  
-```freertos/task.h``` Controle das funções do ESP32.  
-```driver/ledc.h``` Controle de LEDs e sinais PWM no ESP32.  
+```<stdio.h>``` Comando básicos e necessários para códigos em C.  \\
+```<freertos/FreeRTOS.h>``` Sistema operacional do ESP32.  \\
+```freertos/task.h``` Controle das funções do ESP32.  \\
+```driver/ledc.h``` Controle de LEDs e sinais PWM no ESP32.  \\
 
 Na sequência, variáveis das cores do led RGB são definidas uma pra cada pino do uC:
 ``` #define R 23```  
