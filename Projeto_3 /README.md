@@ -67,5 +67,28 @@ Em seguida, acontece a configuração das cores RGB:
 ```canal.gpio_num = B;```  Pino 21
 ```ledc_channel_config(&canal);``` 
 
+Após a configuração dos PWMs, é feito a definição e o incremento:  
+
+Estado inicial das cores:
+```int vermelho = 0;```
+```int verde = 0;```
+```int azul = 0;```
+
+Dentro do loop ```while (1)```, é definido o incremento de cada cor a cada ciclo:
+
+```vermelho += 15;```  
+    ```verde += 5;```   
+    ```azul += 10;```   
+
+Em seguida, é feito o teto do incremento para 8 bits (0 a 255). A lógica é que se a cor ultrapassa o valor de 155, ela volta ao estado inicial:
+
+```if (vermelho > 255)  vermelho = 0; ``` 
+  ```  if (verde > 255)     verde = 0; ``` 
+  ```  if (azul > 255)      azul = 0;  ```
+
+  
+    
+
+
 
 
