@@ -161,7 +161,14 @@ Em seguida, dentro do loop  ```app_main``` segue a configuração dos temporizad
        ``` printf("Pot: %d e Angulo (graus): %d\n", leitura, angulo);``` Leituras UART   
        ``` vTaskDelay(100 / portTICK_PERIOD_MS);``` delay de 100 ms    
 
-       
+Dessa forma, a posição do servomotor varia de acordo com o potencômetro, como mostra os dois exemplos nas figuras abaixo:
+<img width="860" height="715" alt="image" src="https://github.com/user-attachments/assets/afb7e407-068b-484b-99d0-89bca4c5d30d" />  
+
+<img width="881" height="720" alt="image" src="https://github.com/user-attachments/assets/d350ff7d-2d8f-4b2e-80f7-b29be90541a3" />  
+
+
+
+
  
 
 
