@@ -92,7 +92,23 @@ Em seguida, é feito o teto do incremento para 8 bits (0 a 255). A lógica é qu
         ```  ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, verde); ```  
        ``` ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1); ```  
        ```   ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, azul);```  
-       ```   ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);```  
+       ```   ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);```    
+       
+Por fim, é feito a leitura para a porta seriaç (UART) como uma forma de telemetria, mostrando os valores de incremento nos valores das cores e a intensidade dos leds, vairando de 0 a 100 %, após isso, no final, um delay de 200 ms é aplicado para dar passos à transição das cores.  
+
+```printf("Incrementos: R=15 G=5 B=10\n");```  
+```printf("Duty -> R:%d%% G:%d%% B:%d%%\n\n", (vermelho * 100) / 255, (verde * 100) / 255, (azul * 100) / 255);```  
+```vTaskDelay(pdMS_TO_TICKS(200));```  
+
+Deste modo, foi implementado o controle PWM de um LED RGB utilizando a ESP32 com frequência de 5 kHz e resolução de 8 bits. Cada cor foi direcionada porum PWM independente, permitindo o controle individual do brilho. Os duty cycles variam continuamente entre 0 e 255, utilizando incrementos diferentes para cada cor. AS imagens abaixo mostra a operação do LED quando apenas um canal de cor é acionado em 100% (ficando vermelho, verde ou azul na intensidade máxima) e também na operação de misturar as cores de acordo com uma interação qualquer:
+
+<img width="852" height="725" alt="image" src="https://github.com/user-attachments/assets/16d308c8-7ff7-4b5b-981e-cfc52c8ae795" />
+<img width="817" height="685" alt="image" src="https://github.com/user-attachments/assets/5708bd03-fe91-4546-bdbf-fac64ad5ee3d" />
+<img width="833" height="713" alt="image" src="https://github.com/user-attachments/assets/fa4beebf-34ee-4c51-95dc-51c3c131abd0" />
+
+<img width="838" height="726" alt="image" src="https://github.com/user-attachments/assets/940498c8-e418-45d8-a31f-a25ed8501b52" />
+
+
 
 
   
