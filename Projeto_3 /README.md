@@ -26,3 +26,5 @@ A montagem do circuito é uma simples conexão dos terminais do led com o ESP32,
 # Controle do LED RGB via PWM
 O código começa com a inclução das bibliotecas básicas:
 
+'''<stdio.h>''' Comando básicos e necessários para códigos em C.
+
