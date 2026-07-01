@@ -114,6 +114,8 @@ A parte 02 contempla o o controle do servo motor com dois exercícios:
 - Aplicação própria de controle PWM com a biblioteca MCPWM.
 
 # Controle PWM de um servo motor
+Para essa estapa do projeto, a montagem do hardware é mostrado na figura abaixo
+<img width="695" height="406" alt="image" src="https://github.com/user-attachments/assets/7945d2ee-5537-4138-9c91-ccee778895ed" />
 
 
   
