@@ -150,9 +150,19 @@ Em seguida, dentro do loop  ```app_main``` segue a configuração dos temporizad
         ```.hpoint = 0};```  
     ```ledc_channel_config(&canal_servo);``` Aplica as configurações do servomotor definidas a cima  
     ```adc1_config_width(ADC_WIDTH_BIT_10);``` Valores do potenciômetro de 0 a 1023 (10 bits)  
-    ```adc1_config_channel_atten(POT_PIN, ADC_ATTEN_DB_12);```   
+    ```adc1_config_channel_atten(POT_PIN, ADC_ATTEN_DB_12);```    
   
-    
+ No  último loop definido pelo ```while (1)```, o código faz os seguintes passos:     
+       ```leitura = adc1_get_raw(POT_PIN);``` Leitura do potenciômetro em binário (0 a 1023)   
+       ``` duty_servo = 25 + ((leitura * (125 - 25)) / 1023);``` Converte a leitura do pot em largura de pulso do servo   
+        ```ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty_servo);``` Grava no canal 0 o dc do servomotor   
+       ``` ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);``` Aplica o novo valor de dc   
+       ``` int angulo = (leitura * 180) / 1023;``` Converte o valor em binario do pot em angulo   
+       ``` printf("Pot: %d e Angulo (graus): %d\n", leitura, angulo);``` Leituras UART   
+       ``` vTaskDelay(100 / portTICK_PERIOD_MS);``` delay de 100 ms    
+
+       
+ 
 
 
 
