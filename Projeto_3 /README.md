@@ -117,7 +117,40 @@ A parte 02 contempla o o controle do servo motor com dois exercícios:
 Para essa estapa do projeto, a montagem do hardware é mostrado na figura abaixo
 <img width="695" height="406" alt="image" src="https://github.com/user-attachments/assets/7945d2ee-5537-4138-9c91-ccee778895ed" />
 
+O potenciômetro é ligado ao pino 35, utilizado como um ADC para converter o sinal analógico em digital a ser interpretado pelo uC. Assim, o pino de controle via PWM é determinado pelo pino 22, sendo levado ao servomotor para ser realizado o controle de posição. Todos esses elementos ( o potenciômetro e o servomotor) também possuem os pinos de VCC e GND alimentados.
 
+# Controle do servomotor via PWM
+
+O código começa com a inicialização das bibliotecas básicas e a definição do pino ADC ligado ao potenciòmetro e a saída PWM ao servomotor:    
+
+```#include <stdio.h>```: Biblioteca básica em C   
+```#include "freertos/FreeRTOS.h"``` Sistema operacional do ESP32  
+```#include "freertos/task.h"``` Gerencia o tempo e funções  
+```#include "driver/ledc.h"``` Controle e configuração do PWM  
+```#include "driver/adc.h"``` Serve para leitura das tensões analógicas  
+
+```#define SERVO_PIN 22```  Pino de saída para o servomotor  
+```#define POT_PIN   ADC1_CHANNEL_7```  Canal analógico para o adc
+
+Em seguida, dentro do loop  ```app_main``` segue a configuração dos temporizadores utilizados pelo PWM
+
+```ledc_timer_config_t timer_servo = {```
+       ``` .speed_mode = LEDC_LOW_SPEED_MODE,``` Temporizador
+      ```  .duty_resolution = LEDC_TIMER_10_BIT, ``` Resolucao de 10 bits
+       ``` .timer_num = LEDC_TIMER_0,``` Timer 0
+      ```  .freq_hz = 50,``` 50 Hz                 
+      ```  .clk_cfg = LEDC_AUTO_CLK };``` Clock interno
+    ```ledc_timer_config(&timer_servo);``` Configuração dos registradores
+    ```ledc_channel_config_t canal_servo = {```
+        ```.speed_mode = LEDC_LOW_SPEED_MODE,```Alinha o timer em baixa frequência
+        ```.timer_sel = LEDC_TIMER_0,``` Timer 0
+        ```.channel = LEDC_CHANNEL_0,``` Canal 0
+        ```.gpio_num = SERVO_PIN,``` Saída do PWM no GPIO 22
+        ```.duty = 0,``` Estado inicial
+        ```.hpoint = 0};```
+    ```ledc_channel_config(&canal_servo);``` Aplica as configurações do servomotor definidas a cima
+    ```adc1_config_width(ADC_WIDTH_BIT_10);``` Valores do potenciômetro de 0 a 1023 (10 bits)
+    ```adc1_config_channel_atten(POT_PIN, ADC_ATTEN_DB_12);``` 
   
     
 
