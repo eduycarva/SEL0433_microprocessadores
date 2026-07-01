@@ -36,6 +36,36 @@ Na sequência, variáveis das cores do led RGB são definidas uma pra cada pino 
 ``` #define G 22```  
 ``` #define B 21```  
 
+Dentro do loop principal ```app_main(void) ``` temos a parte principal dos PWM, começando pela configuração do temporizador:
+
+```ledc_timer_config_t timer = {```
+    ```.speed_mode = LEDC_LOW_SPEED_MODE,``` Define o modo de operação em baixa frequência
+    ```.duty_resolution = LEDC_TIMER_8_BIT,``` Resolução de 8 bits (0 a 255)
+    ```.timer_num = LEDC_TIMER_0,``` Temporizador da ESP32 em 0
+    ```.freq_hz = 5000,``` Frequencia
+    ```.clk_cfg = LEDC_AUTO_CLK```}; Fonte do relógio
+    
+```ledc_timer_config(&timer);``` ativação no ESP32
+
+```ledc_channel_config_t canal = {```
+    ```.speed_mode = LEDC_LOW_SPEED_MODE,```
+    ```.timer_sel = LEDC_TIMER_0,``` Timer 0
+    ```.duty = 0,``` Estado inicial
+    ```.hpoint = 0};```
+
+Em seguida, acontece a configuração das cores RGB:
+
+```canal.channel = LEDC_CHANNEL_0;``` Canal 0
+```canal.gpio_num = R;``` Pino 23
+```ledc_channel_config(&canal);``` 
+
+```canal.channel = LEDC_CHANNEL_1;``` Canal 1
+```canal.gpio_num = G;``` Pino 22
+```ledc_channel_config(&canal);```
+
+```canal.channel = LEDC_CHANNEL_2;``` Canal 2
+```canal.gpio_num = B;```  Pino 21
+```ledc_channel_config(&canal);``` 
 
 
 
