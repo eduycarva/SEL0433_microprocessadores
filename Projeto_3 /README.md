@@ -89,10 +89,8 @@ Em seguida, é feito o teto do incremento para 8 bits (0 a 255). A lógica é qu
   Em seguida, é feito a atualização dos estados para os pinos de saída do PWM para cada cor:    
         ```ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, vermelho);```  
        ``` ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);```  
-
-        ```  ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, verde);
-       ```   ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);```  
-
+        ```  ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, verde); ```  
+       ``` ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1); ```  
        ```   ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, azul);```  
        ```   ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);```  
 
