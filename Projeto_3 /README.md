@@ -108,7 +108,12 @@ Deste modo, foi implementado o controle PWM de um LED RGB utilizando a ESP32 com
 
 <img width="838" height="726" alt="image" src="https://github.com/user-attachments/assets/940498c8-e418-45d8-a31f-a25ed8501b52" />
 
+## Parte 02 :Controle PWM de motores
+A parte 02 contempla o o controle do servo motor com dois exercícios:
+- Controle PWM do servomotor com o incremento de forma manual por um potenciômetro.
+- Aplicação própria de controle PWM com a biblioteca MCPWM.
 
+# Controle PWM de um servo motor
 
 
   
