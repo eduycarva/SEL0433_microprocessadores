@@ -132,25 +132,25 @@ O código começa com a inicialização das bibliotecas básicas e a definição
 ```#define SERVO_PIN 22```  Pino de saída para o servomotor  
 ```#define POT_PIN   ADC1_CHANNEL_7```  Canal analógico para o adc
 
-Em seguida, dentro do loop  ```app_main``` segue a configuração dos temporizadores utilizados pelo PWM
+Em seguida, dentro do loop  ```app_main``` segue a configuração dos temporizadores utilizados pelo PWM  
 
-```ledc_timer_config_t timer_servo = {```
-       ``` .speed_mode = LEDC_LOW_SPEED_MODE,``` Temporizador
-      ```  .duty_resolution = LEDC_TIMER_10_BIT, ``` Resolucao de 10 bits
-       ``` .timer_num = LEDC_TIMER_0,``` Timer 0
-      ```  .freq_hz = 50,``` 50 Hz                 
-      ```  .clk_cfg = LEDC_AUTO_CLK };``` Clock interno
-    ```ledc_timer_config(&timer_servo);``` Configuração dos registradores
-    ```ledc_channel_config_t canal_servo = {```
-        ```.speed_mode = LEDC_LOW_SPEED_MODE,```Alinha o timer em baixa frequência
-        ```.timer_sel = LEDC_TIMER_0,``` Timer 0
-        ```.channel = LEDC_CHANNEL_0,``` Canal 0
-        ```.gpio_num = SERVO_PIN,``` Saída do PWM no GPIO 22
-        ```.duty = 0,``` Estado inicial
-        ```.hpoint = 0};```
-    ```ledc_channel_config(&canal_servo);``` Aplica as configurações do servomotor definidas a cima
-    ```adc1_config_width(ADC_WIDTH_BIT_10);``` Valores do potenciômetro de 0 a 1023 (10 bits)
-    ```adc1_config_channel_atten(POT_PIN, ADC_ATTEN_DB_12);``` 
+```ledc_timer_config_t timer_servo = {```  
+       ``` .speed_mode = LEDC_LOW_SPEED_MODE,``` Temporizador  
+      ```  .duty_resolution = LEDC_TIMER_10_BIT, ``` Resolucao de 10 bits  
+       ``` .timer_num = LEDC_TIMER_0,``` Timer 0  
+      ```  .freq_hz = 50,``` 50 Hz                  
+      ```  .clk_cfg = LEDC_AUTO_CLK };``` Clock interno  
+    ```ledc_timer_config(&timer_servo);``` Configuração dos registradores  
+    ```ledc_channel_config_t canal_servo = {```  
+        ```.speed_mode = LEDC_LOW_SPEED_MODE,```Alinha o timer em baixa frequência  
+        ```.timer_sel = LEDC_TIMER_0,``` Timer 0  
+        ```.channel = LEDC_CHANNEL_0,``` Canal 0  
+        ```.gpio_num = SERVO_PIN,``` Saída do PWM no GPIO 22  
+        ```.duty = 0,``` Estado inicial  
+        ```.hpoint = 0};```  
+    ```ledc_channel_config(&canal_servo);``` Aplica as configurações do servomotor definidas a cima  
+    ```adc1_config_width(ADC_WIDTH_BIT_10);``` Valores do potenciômetro de 0 a 1023 (10 bits)  
+    ```adc1_config_channel_atten(POT_PIN, ADC_ATTEN_DB_12);```   
   
     
 
