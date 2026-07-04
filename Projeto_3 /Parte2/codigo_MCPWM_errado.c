@@ -8,8 +8,6 @@
 #include "driver/gpio.h"
 #include "driver/i2c.h"
 
-//ESSE CÓDIGO NÃO FUNCIONOU, E NÃO CONSEGUIMOS ACHAR O SEU ERRO. 
-
 // Definições de Pinos
 #define PINO_POTENCIOMETRO ADC1_CHANNEL_6 // Pino 34
 #define PINO_STEP          19             // MCPWM (Controla a velocidade, sem JTAG)
@@ -145,7 +143,7 @@ void app_main(void)
     char texto_modo[32];
     char texto_vel[32];
 
-    // 1. Configuração I2C (OLED)
+
     i2c_config_t config_i2c = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = PINO_SDA,
@@ -159,11 +157,11 @@ void app_main(void)
     inicializar_tela_oled();
     limpar_tela_oled();
 
-    // 2. Configuração ADC (Potenciômetro)
+   
     adc1_config_width(ADC_WIDTH_BIT_12); 
     adc1_config_channel_atten(PINO_POTENCIOMETRO, ADC_ATTEN_DB_12); 
 
-    // 3. Configuração do Botão (Interrupção Externa)
+ 
     gpio_config_t config_botao = {
         .pin_bit_mask = (1ULL << PINO_BOTAO),
         .mode = GPIO_MODE_INPUT,
@@ -175,12 +173,12 @@ void app_main(void)
     gpio_install_isr_service(0);
     gpio_isr_handler_add(PINO_BOTAO, botao_isr_handler, NULL);
 
-    // Configura o pino de Direção (DIR) do Driver
+    // Configura o pino de Direção do Driver
     gpio_reset_pin(PINO_DIR);
     gpio_set_direction(PINO_DIR, GPIO_MODE_OUTPUT);
     gpio_set_level(PINO_DIR, 1); 
 
-    // 4. Configuração MCPWM (Gera os pulsos STEP)
+    // 4. Configuração MCPWM 
     mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, PINO_STEP);
     mcpwm_config_t config_motor = {
         .frequency = 500,                   
@@ -197,18 +195,18 @@ void app_main(void)
     while (1) {
         int leitura_adc = adc1_get_raw(PINO_POTENCIOMETRO);
         
-        // Mapeia ADC para Frequência (10Hz a 1000Hz = Velocidade do Motor de Passo)
+        // Mapeia ADC para Frequência 
         uint32_t frequencia_desejada = 10 + ((leitura_adc * 990) / 4095);
 
         if (!sistema_ativo) {
-            // TRAVA ATIVADA: Duty Cycle vai para 0% (motor para)
+            // TRAVA ATIVADA
             mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, 0.0);
             ultima_frequencia = 0; // Força uma atualização quando destravar
         } else {
             // MOTOR ATIVO
             mcpwm_set_duty(MCPWM_UNIT_0, MCPWM_TIMER_0, MCPWM_OPR_A, 50.0);
             
-            // Só muda a frequência se a diferença for maior que 20Hz (ignora os tremidos do ADC)
+            // Só muda a frequência se a diferença for maior que 20Hz
             int diferenca = frequencia_desejada - ultima_frequencia;
             if (abs(diferenca) > 20 || ultima_frequencia == 0) {
                 mcpwm_set_frequency(MCPWM_UNIT_0, MCPWM_TIMER_0, frequencia_desejada);
