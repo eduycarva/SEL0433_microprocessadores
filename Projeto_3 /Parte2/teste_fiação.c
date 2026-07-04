@@ -18,10 +18,10 @@ void app_main(void) {
     gpio_set_level(PINO_DIR, 1);
     printf("Iniciando teste bruto do Motor de Passo na porta 19...\n");
     while (1) {
-        // Manda energia (Sobe o pulso)
+        // Manda energia 
         gpio_set_level(PINO_STEP, 1);
-        vTaskDelay(pdMS_TO_TICKS(10)); // Espera 10 milissegundos
-        // Tira a energia (Desce o pulso, completando 1 passo)
+        vTaskDelay(pdMS_TO_TICKS(10)); // Espera 10ms
+        // Tira a energia 
         gpio_set_level(PINO_STEP, 0);
         vTaskDelay(pdMS_TO_TICKS(10)); // Espera 10 milissegundos
     }
