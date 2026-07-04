@@ -200,20 +200,20 @@ Abaixo está o código definitivo do projeto, perfeitamente operacional, explica
 Importamos os módulos do FreeRTOS (sistema operacional de tempo real da ESP32) e as bibliotecas nativas de todos os periféricos necessários. Também mapeamos os pinos físicos em macros para facilitar a manutenção do código.
 
 ```c
-#include <stdio.h>              // Funções de entrada/saída padrão (printf, snprintf)
-#include <string.h>          // Manipulação de strings (não usado diretamente aqui, mas comum em projetos C)
-#include "freertos/FreeRTOS.h"    // Núcleo do FreeRTOS: tipos, ticks, macros de tempo
-#include "freertos/task.h"    // Gerenciamento de tasks: vTaskDelay, xTaskGetTickCountFromISR
-#include "driver/adc.h"         // Driver do conversor analógico-digital (leitura do potenciômetro)
-#include "driver/gpio.h"           // Driver de GPIO (configuração de pinos digitais e da ISR do botão)
-#include "driver/i2c.h"           // Driver do barramento I2C (comunicação com o display OLED)
-#include "driver/ledc.h"     // Modulador PWM nativo da ESP32 (Substituto do MCPWM)
+#include <stdio.h>             
+#include <string.h>          
+#include "freertos/FreeRTOS.h"  
+#include "freertos/task.h"    
+#include "driver/adc.h"         // Driver do conversor AD
+#include "driver/gpio.h"           // Driver de GPIO 
+#include "driver/i2c.h"           // Driver do barramento I2C 
+#include "driver/ledc.h"     // Modulador PWM nativo da ESP32 
  
 // Definições de Pinos e Constantes I2C
-#define PINO_POTENCIOMETRO ADC1_CHANNEL_6 // Canal ADC1 ligado ao potenciômetro (GPIO 34)
-#define PINO_STEP      19        // Pino que gera o pulso PWM enviado ao driver A4988 (STEP)
-#define PINO_DIR       25           // Pino digital que define o sentido de rotação do motor (DIR)
-#define PINO_BOTAO     12           // Pino do botão de trava de emergência (com pull-up interno)
+#define PINO_POTENCIOMETRO ADC1_CHANNEL_6 // Canal ADC1 ligado ao potenciômetro
+#define PINO_STEP      19        // Pino que gera o pulso PWM enviado ao driver A4988 
+#define PINO_DIR       25           // Pino digital que define o sentido de rotação do motor 
+#define PINO_BOTAO     12           // Pino do botão de trava de emergência 
 #define PINO_SDA       21       // Linha de dados do barramento I2C 
 #define PINO_SCL       22         // Linha de clock do barramento I2C 
  
@@ -301,7 +301,7 @@ int obter_indice(char c) {
 Este conjunto de funções atua no nível de hardware do protocolo I2C. São construídos lincs de dados preenchidos com as instruções necessárias para ativar e escrever no controlador OLED.
 
 ```c
-// Envia um único byte de comando (não de dados) para o controlador SSD1306 via I2C.
+// Envia um único byte de comandopara o controlador SSD1306 via I2C.
 void enviar_comando_oled(uint8_t comando) {
     i2c_cmd_handle_t link = i2c_cmd_link_create();                          
     i2c_master_start(link);                                 
@@ -316,15 +316,15 @@ void enviar_comando_oled(uint8_t comando) {
 // Envia a sequência de inicialização padrão do SSD1306 (liga o display, define endereçamento, contraste etc.)
 void inicializar_tela_oled() {
     uint8_t config[] = { 0xAE, 0x20, 0x10, 0xB0, 0x00, 0x10, 0x40, 0x81, 0x7F, 0xA0, 0xC0, 0xA6, 0xA8, 0x3F, 0xA4, 0xD3, 0x00, 0xD5, 0x80, 0xD9, 0x22, 0xDA, 0x12, 0xDB, 0x20, 0x8D, 0x14, 0xAF };
-    for (int i = 0; i < sizeof(config); i++) enviar_comando_oled(config[i]); // Envia cada byte da sequência, um a um
+    for (int i = 0; i < sizeof(config); i++) enviar_comando_oled(config[i]); 
 }
  
-// Apaga todo o conteúdo do display, escrevendo 0x00 (pixels apagados) em todas as 8 páginas de 128 colunas.
+// Apaga todo o conteúdo do display, escrevendo 0x00 em todas as 8 páginas de 128 colunas.
 void limpar_tela_oled() {
     for (uint8_t pagina = 0; pagina < 8; pagina++) {
-        enviar_comando_oled(0xB0 + pagina); // Seleciona a página (linha) atual (0xB0 a 0xB7)
-        enviar_comando_oled(0x00)     // Define o nibble baixo da coluna inicial (coluna 0)
-        enviar_comando_oled(0x10);         // Define o nibble alto da coluna inicial (coluna 0)
+        enviar_comando_oled(0xB0 + pagina); // Seleciona a página  atual (0xB0 a 0xB7)
+        enviar_comando_oled(0x00)     // Define o nibble baixo da coluna inicial 
+        enviar_comando_oled(0x10);         // Define o nibble alto da coluna inicial
  
         i2c_cmd_handle_t link = i2c_cmd_link_create();
         i2c_master_start(link);
@@ -345,7 +345,7 @@ void desenhar_caractere(char caractere) {
     i2c_master_write_byte(link, (ENDERECO_OLED << 1) | I2C_MASTER_WRITE, true);
     i2c_master_write_byte(link, 0x40, true);                                   // Indica que virão dados de pixel
     for (int i = 0; i < 5; i++) i2c_master_write_byte(link, fonte[indice][i], true); // Envia as 5 colunas do caractere
-    i2c_master_write_byte(link, 0x00, true);                                 // Coluna extra em branco (espaçamento entre caracteres)
+    i2c_master_write_byte(link, 0x00, true);                                 // Coluna extra em branco 
     i2c_master_stop(link);
     i2c_master_cmd_begin(BARRAMENTO_I2C, link, pdMS_TO_TICKS(10));
     i2c_cmd_link_delete(link);
@@ -353,7 +353,7 @@ void desenhar_caractere(char caractere) {
  
 // Posiciona o cursor na página (linha) desejada e escreve uma string inteira, caractere por caractere.
 void escrever_linha_oled(const char* texto, uint8_t pagina) {
-    enviar_comando_oled(0xB0 + pagina); // Seleciona a página (0 a 7) onde o texto será escrito
+    enviar_comando_oled(0xB0 + pagina); // Seleciona a linha
     enviar_comando_oled(0x00);         // Reinicia a coluna para o início 
     enviar_comando_oled(0x10);        // Reinicia a coluna para o início 
     while (*texto) {           // Percorre a string até encontrar o terminador nulo
@@ -387,7 +387,7 @@ void app_main(void)
     limpar_tela_oled();       
  
     // Configuração ADC (Potenciômetro)
-    adc1_config_width(ADC_WIDTH_BIT_12);                              // Define resolução de 12 bits
+    adc1_config_width(ADC_WIDTH_BIT_12);         // Define resolução de 12 bits
     adc1_config_channel_atten(PINO_POTENCIOMETRO, ADC_ATTEN_DB_12);   // Define atenuação para ler toda a faixa de 0 a 3.3v
  
     // Configuração do Botão (Interrupção)
@@ -402,7 +402,6 @@ void app_main(void)
     gpio_install_isr_service(0);                             // Inicializa o serviço de interrupções de GPIO da ESP32
     gpio_isr_handler_add(PINO_BOTAO, botao_isr_handler, NULL); // Associa a função de callback à interrupção deste pino
  
-    // Configura Pino de Direção (DIR) do Motor
     gpio_reset_pin(PINO_DIR);                       // Reseta o pino para o estado padrão 
     gpio_set_direction(PINO_DIR, GPIO_MODE_OUTPUT); // Define o pino como saída digital
     gpio_set_level(PINO_DIR, 1);                    // Fixa o sentido de rotação 
@@ -414,11 +413,11 @@ Aqui mora a solução do problema de hardware virtual descrito acima. O `LEDC` d
 ```c
     // Configuração da biblioteca LEDC
     ledc_timer_config_t timer_conf = {
-        .speed_mode = LEDC_LOW_SPEED_MODE,     // Modo de baixa velocidade
+        .speed_mode = LEDC_LOW_SPEED_MODE,   // Modo de baixa velocidade
         .duty_resolution = LEDC_TIMER_10_BIT,  // DC
         .timer_num = LEDC_TIMER_0,             // Timer
-        .freq_hz = 500,                        // freq.
-        .clk_cfg = LEDC_AUTO_CLK               // Fonte
+        .freq_hz = 500,                       // freq.
+        .clk_cfg = LEDC_AUTO_CLK             // Fonte
     };
     ledc_timer_config(&timer_conf); // Aplica a configuração do timer
  
