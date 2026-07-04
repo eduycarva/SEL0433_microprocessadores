@@ -485,9 +485,7 @@ Abaixo estão os registros da simulação do projeto em funcionamento no Wokwi, 
 
 ## Conclusão do Processo
 
-O desenvolvimento deste exercício não foi linear, e justamente por isso ele ilustra bem um processo real de embarcados: implementar, testar, e adaptar a solução conforme as limitações do ambiente disponível. O caminho percorrido pode ser resumido em três etapas:
- 
-O resultado final é um sistema estável e integralmente funcional em simulação, capaz de controlar a velocidade do motor de passo em tempo real, sinalizar seu estado tanto no display OLED quanto no monitor serial, e reagir de forma imediata ao acionamento da trava de emergência.
+O desenvolvimento deste exercício não foi linear, e justamente por isso ele ilustra bem um processo real de embarcados: implementar, testar, e adaptar a solução conforme as limitações do ambiente disponível. O resultado final é um sistema estável e integralmente funcional em simulação, capaz de controlar a velocidade do motor de passo em tempo real, sinalizar seu estado tanto no display OLED quanto no monitor serial, e reagir de forma imediata ao acionamento da trava de emergência.
 
 
 
