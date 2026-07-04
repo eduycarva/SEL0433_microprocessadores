@@ -168,71 +168,61 @@ Dessa forma, a posição do servomotor varia de acordo com o potencômetro, como
 
 # Controle Avançado de Motor de Passo com ESP32 e FreeRTOS
 
-Este repositório contém o código e a documentação referentes ao **Exercício 2 da Parte 2** do Projeto 3 (SEL0433 - Aplicação de Microprocessadores): um sistema de controle de Motor de Passo Bipolar utilizando um driver A4988 e um microcontrolador ESP32. O projeto integra leitura analógica (ADC), interrupção externa por hardware, comunicação I2C com display OLED e modulação de PWM em tempo real, desenvolvido diretamente sobre o **ESP-IDF**.
+Este repositório contém o código e a documentação referentes ao **Exercício 2 da Parte 2** do Projeto 3 (SEL0433 - Aplicação de Microprocessadores): um sistema de controle de Motor de Passo Bipolar utilizando um driver A4988 e um microcontrolador ESP32. O projeto integra leitura analógica (ADC), interrupção externa por hardware, comunicação I2C com display OLED e modulação de PWM em tempo real, desenvolvido diretamente sobre o ESP-IDF.
 
-Conforme solicitado no enunciado, o projeto foi desenvolvido com base na biblioteca nativa **MCPWM (Motor Control PWM)**, recurso avançado de PWM da ESP32 voltado especificamente para controle de motores. Durante os testes de simulação, no entanto, essa biblioteca apresentou um comportamento incompatível com o ambiente virtual utilizado (Wokwi), detalhado na seção abaixo. Por esse motivo, e para garantir a entrega de um sistema integralmente funcional e simulável, a geração de PWM foi migrada para a biblioteca **LEDC**, mantendo-se o restante da arquitetura (ADC, interrupção, I2C/OLED) inalterada. Os dois códigos — o desenvolvido originalmente com MCPWM e a versão final com LEDC — estão documentados neste repositório para registro do processo de engenharia.
+Conforme solicitado no enunciado, o projeto foi desenvolvido com base na biblioteca nativa MCPWM. Durante os testes de simulação, no entanto, essa biblioteca apresentou uns bugs com o Wokwi, detalhado a seguir. Por esse motivo a geração de PWM foi migrada para a biblioteca LEDC, mantendo-se o restante da arquitetura sem alterações. Os dois códigos estão documentados neste repositório para registro.
 
-## Arquitetura de Hardware (Pinout)
-- **GPIO 34 (ADC1_CH6):** Potenciômetro para controle dinâmico da velocidade.
-- **GPIO 12 (INPUT_PULLUP):** Botão físico atuando como "Trava de Emergência" via Interrupção Externa (ISR).
-- **GPIO 21 (SDA) / GPIO 22 (SCL):** Comunicação I2C para o Display OLED SSD1306.
-- **GPIO 19 (PWM):** Pino `STEP` conectado ao driver A4988, responsável por enviar os pulsos de velocidade (10Hz a 1000Hz).
-- **GPIO 25 (OUTPUT):** Pino `DIR` conectado ao driver A4988 para definir o sentido de rotação.
+## Arquitetura 
+- GPIO 34: Potenciômetro para controle dinâmico da velocidade.
+- GPIO 21: Comunicação I2C para o Display OLED.
+- GPIO 19: Pino `STEP` conectado ao driver, responsável por enviar os pulsos.
+- GPIO 25 (OUTPUT): Pino `DIR` que define o sentido de rotação.
+  
+## Bug do MCPWM
 
----
-
-## O Desafio de Simulação no Wokwi (Bug do MCPWM)
-
-### Tentativa inicial: biblioteca `driver/mcpwm.h`
-Seguindo a recomendação do enunciado, a primeira versão do projeto foi implementada integralmente com a biblioteca nativa `driver/mcpwm.h`, que é o módulo de PWM da ESP32 voltado especificamente para controle de motores (o código completo dessa versão está disponível na seção **"Códigos Extra"** abaixo, arquivo `mcpwm_versao_original.c`). A fiação, o driver A4988, o ADC, a ISR do botão e o display OLED eram exatamente os mesmos da versão final — a única diferença estava no bloco responsável por gerar o sinal de `STEP`.
-
-Em uma placa de silício física, essa implementação geraria o sinal perfeitamente. Contudo, ao virtualizar o ambiente no simulador **Wokwi** (construído sob ESP-IDF v5.3), identificou-se uma limitação grave do simulador.
-
-**O Problema:**
-Devido às pequenas micro-oscilações características das leituras físicas de ADC (onde o valor do potenciômetro treme constantemente mesmo parado), a instrução de alteração de frequência `mcpwm_set_frequency()` era enviada repetidamente, várias vezes por segundo. O Wokwi processava cada uma dessas chamadas recriando o timer virtual do zero, de forma instantânea. Como consequência, o pulso nunca terminava de se formar corretamente e o pino 19 permanecia "morto" (nível constante, sem alternância), mesmo com o restante do sistema (ADC, ISR, OLED) funcionando normalmente.
+## Tentativa inicial: biblioteca `driver/mcpwm.h`
+Seguindo a recomendação do enunciado, a primeira versão do projeto foi implementada com a biblioteca nativa `driver/mcpwm.h`, que é o módulo de PWM da ESP32 voltado especificamente para controle de motores (arquivo `mcpwm_versao_original.c`). A fiação, o driver A4988, o ADC, a ISR do botão e o display OLED eram exatamente os mesmos da versão final - a única diferença estava no bloco responsável por gerar o sinal de `STEP`.
 
 **Como isolamos o problema:**
-Para confirmar que o problema estava na biblioteca MCPWM dentro do simulador — e não na fiação, no driver A4988 ou no motor — foi feito um teste bruto (`teste_bruto_gpio.c`, também disponível abaixo), no qual o pino `STEP` é alternado manualmente em nível alto/baixo via `gpio_set_level()`, sem uso de nenhuma biblioteca de PWM. Esse teste funcionou perfeitamente no Wokwi: o motor girou de forma consistente, confirmando que:
+Para confirmar que o problema estava na biblioteca MCPWM dentro do simulador, foi feito um teste bruto, no qual o pino `STEP` é alternado manualmente em nível alto/baixo via `gpio_set_level()`, sem uso de nenhuma biblioteca de PWM. Esse teste funcionou perfeitamente no Wokwi: o motor girou de forma consistente, confirmando que:
 - A fiação entre ESP32, driver A4988 e motor de passo estava correta;
 - O pino `DIR` e a lógica de sentido de rotação estavam corretos;
-- O problema estava isolado especificamente na geração de PWM via `mcpwm_set_frequency()` dentro do ambiente de simulação, e não no restante do hardware/software do projeto.
+- O problema estava isolado especificamente na geração de PWM via `mcpwm_set_frequency()` dentro do ambiente de simulação, e não no restante do software do projeto.
 
 **A Solução:**
-Com o problema devidamente isolado, a aplicação foi refatorada substituindo a arquitetura de modulação para a API **LEDC** (`driver/ledc.h`), também nativa da ESP32 e amplamente utilizada para geração de PWM. O emulador do Wokwi processa a LEDC de maneira independente e fluida, permitindo injetar novas frequências em tempo de execução sem corromper a onda já em andamento — resolvendo o travamento observado com a MCPWM.
-
----
+Com o problema devidamente isolado, a aplicação foi refatorada substituindo a arquitetura de modulação para o **LEDC** (`driver/ledc.h`). 
 
 ## Dissecando o Código Principal (Solução Final com LEDC)
 
-Abaixo está o código definitivo do projeto, perfeitamente operacional, explicado bloco a bloco para total compreensão técnica da arquitetura construída.
+Abaixo está o código definitivo do projeto, perfeitamente operacional, explicado bloco a bloco para total compreensão da arquitetura construída.
 
 ### Bloco 1: Importações e Definições de Hardware
 Importamos os módulos do FreeRTOS (sistema operacional de tempo real da ESP32) e as bibliotecas nativas de todos os periféricos necessários. Também mapeamos os pinos físicos em macros para facilitar a manutenção do código.
 
 ```c
-#include <stdio.h>                  // Funções de entrada/saída padrão (printf, snprintf)
-#include <string.h>                 // Manipulação de strings (não usado diretamente aqui, mas comum em projetos C)
-#include "freertos/FreeRTOS.h"      // Núcleo do FreeRTOS: tipos, ticks, macros de tempo
-#include "freertos/task.h"          // Gerenciamento de tasks: vTaskDelay, xTaskGetTickCountFromISR
-#include "driver/adc.h"             // Driver do conversor analógico-digital (leitura do potenciômetro)
-#include "driver/gpio.h"            // Driver de GPIO (configuração de pinos digitais e da ISR do botão)
-#include "driver/i2c.h"             // Driver do barramento I2C (comunicação com o display OLED)
-#include "driver/ledc.h"            // Modulador PWM nativo da ESP32 (Substituto do MCPWM)
+#include <stdio.h>              // Funções de entrada/saída padrão (printf, snprintf)
+#include <string.h>          // Manipulação de strings (não usado diretamente aqui, mas comum em projetos C)
+#include "freertos/FreeRTOS.h"    // Núcleo do FreeRTOS: tipos, ticks, macros de tempo
+#include "freertos/task.h"    // Gerenciamento de tasks: vTaskDelay, xTaskGetTickCountFromISR
+#include "driver/adc.h"         // Driver do conversor analógico-digital (leitura do potenciômetro)
+#include "driver/gpio.h"           // Driver de GPIO (configuração de pinos digitais e da ISR do botão)
+#include "driver/i2c.h"           // Driver do barramento I2C (comunicação com o display OLED)
+#include "driver/ledc.h"     // Modulador PWM nativo da ESP32 (Substituto do MCPWM)
  
 // Definições de Pinos e Constantes I2C
 #define PINO_POTENCIOMETRO ADC1_CHANNEL_6 // Canal ADC1 ligado ao potenciômetro (GPIO 34)
-#define PINO_STEP          19             // Pino que gera o pulso PWM enviado ao driver A4988 (STEP)
-#define PINO_DIR           25             // Pino digital que define o sentido de rotação do motor (DIR)
-#define PINO_BOTAO         12             // Pino do botão de trava de emergência (com pull-up interno)
-#define PINO_SDA           21             // Linha de dados do barramento I2C (para o display OLED)
-#define PINO_SCL           22             // Linha de clock do barramento I2C (para o display OLED)
+#define PINO_STEP      19             // Pino que gera o pulso PWM enviado ao driver A4988 (STEP)
+#define PINO_DIR       25             // Pino digital que define o sentido de rotação do motor (DIR)
+#define PINO_BOTAO     12             // Pino do botão de trava de emergência (com pull-up interno)
+#define PINO_SDA       21             // Linha de dados do barramento I2C (para o display OLED)
+#define PINO_SCL       22             // Linha de clock do barramento I2C (para o display OLED)
  
-#define ENDERECO_OLED      0x3C           // Endereço I2C padrão do controlador SSD1306
+#define ENDERECO_OLED      0x3C           // Endereço I2C padrão do controlador OLED
 #define BARRAMENTO_I2C     I2C_NUM_0      // Usa o periférico I2C número 0 da ESP32
 ```
 
 ### Bloco 2: Variáveis Globais e Interrupção (ISR)
-Aqui declaramos variáveis como `volatile` pois elas serão alteradas dentro de uma Interrupção de Hardware. A função `botao_isr_handler` é acionada **imediatamente** quando o botão é pressionado, independentemente do que o processador esteja fazendo. Para evitar o efeito "bouncing" (onde o contato metálico do botão gera múltiplos acionamentos em milissegundos), usamos um cálculo temporal baseado nos *Ticks* do FreeRTOS, ignorando acionamentos duplos em menos de 250ms.
+Aqui declaramos variáveis como `volatile` pois elas serão alteradas dentro de uma interrupção de Hardware. A função `botao_isr_handler` é acionada quando o botão é pressionado, independentemente do que o processador esteja fazendo. Para evitar o efeito "bouncing" (onde o contato metálico do botão gera múltiplos acionamentos em milissegundos), usamos um cálculo temporal baseado nos FreeRTOS, ignorando acionamentos duplos em menos de 250ms.
 
 ```c
 volatile bool sistema_ativo = true;      // Estado do motor (true = girando, false = travado). 'volatile' porque é alterada dentro da ISR.
@@ -251,8 +241,7 @@ static void IRAM_ATTR botao_isr_handler(void* arg) {
 }
 ```
 
-### Bloco 3: Mapeamento de Matriz (OLED Sem Bibliotecas Externas)
-Para reforçar o domínio sobre sistemas embarcados, não foram utilizadas bibliotecas prontas para o display. Foi desenhada uma matriz hexadecimal (bitmap) que ensina o display a desenhar letras e números numa grade de 5x8 pixels. A função `obter_indice` traduz o caractere (por exemplo 'A' ou '0') para a linha correspondente dessa matriz.
+### Bloco 3: Mapeamento de Matriz
 
 ```c
 // Matriz de fonte 5x8: cada linha representa um caractere, e cada byte representa uma coluna de 8 pixels verticais.
@@ -300,7 +289,6 @@ const uint8_t fonte[][5] = {
     {0x08, 0x08, 0x08, 0x08, 0x08}  // -
 };
  
-// Converte um caractere ASCII no índice correspondente dentro da matriz 'fonte'.
 // Isso permite montar qualquer string (letras, números e símbolos) pixel a pixel no display.
 int obter_indice(char c) {
     if (c >= '0' && c <= '9') return c - '0' + 1;   // Dígitos '0'-'9' mapeiam para os índices 1 a 10
@@ -313,7 +301,7 @@ int obter_indice(char c) {
 ```
 
 ### Bloco 4: Funções Controladoras do Barramento I2C
-Este conjunto de funções atua no nível de hardware do protocolo I2C. São construídos *links* de dados preenchidos byte a byte com as instruções necessárias para ativar e escrever no controlador SSD1306 do OLED.
+Este conjunto de funções atua no nível de hardware do protocolo I2C. São construídos lincs de dados preenchidos com as instruções necessárias para ativar e escrever no controlador OLED.
 
 ```c
 // Envia um único byte de comando (não de dados) para o controlador SSD1306 via I2C.
@@ -378,8 +366,8 @@ void escrever_linha_oled(const char* texto, uint8_t pagina) {
 }
 ```
 
-### Bloco 5: Main Setup (ADC, Botão, I2C)
-O corpo inicial do `app_main` é responsável por instalar os serviços de periféricos. São configurados os atenuadores e a largura de bits (12-bits = 0 a 4095) do ADC, registrada a ISR do pino do botão e levantada a porta de controle I2C em modo *Master*.
+### Bloco 5: Main Setup
+O corpo inicial do `app_main` é responsável por instalar os serviços de periféricos. São configurados os atenuadores e a largura de bits do ADC, registrada a ISR do pino do botão e levantada a porta de controle I2C.
 
 ```c
 void app_main(void)
@@ -423,17 +411,17 @@ void app_main(void)
     gpio_set_level(PINO_DIR, 1);                    // Fixa o sentido de rotação (nível alto = sentido horário, por exemplo)
 ```
 
-### Bloco 6: O Coração do Motor (A biblioteca LEDC PWM)
-Aqui mora a solução do problema de hardware virtual descrito acima. A API nativa `LEDC` divide o PWM em duas partes: o Timer (responsável pela frequência) e o Canal (responsável por amarrar a GPIO 19 ao Timer e determinar a proporção do pulso).
+### Bloco 6: PWM paar Motor
+Aqui mora a solução do problema de hardware virtual descrito acima. O `LEDC` divide o PWM em duas partes: o Timer e o Canal.
 
 ```c
-    // A SOLUÇÃO: Configuração da biblioteca LEDC (PWM nativo)
+    // Configuração da biblioteca LEDC
     ledc_timer_config_t timer_conf = {
-        .speed_mode = LEDC_LOW_SPEED_MODE,     // Modo de baixa velocidade (adequado para PWM de propósito geral)
-        .duty_resolution = LEDC_TIMER_10_BIT,  // Resolução do duty cycle: 10 bits (0 a 1023)
-        .timer_num = LEDC_TIMER_0,             // Usa o timer de hardware nº 0 da LEDC
-        .freq_hz = 500,                        // Frequência inicial do PWM: 500 Hz (será sobrescrita no loop)
-        .clk_cfg = LEDC_AUTO_CLK               // Deixa a ESP-IDF escolher automaticamente a fonte de clock
+        .speed_mode = LEDC_LOW_SPEED_MODE,     // Modo de baixa velocidade
+        .duty_resolution = LEDC_TIMER_10_BIT,  // DC
+        .timer_num = LEDC_TIMER_0,             // Timer
+        .freq_hz = 500,                        // freq.
+        .clk_cfg = LEDC_AUTO_CLK               // Fonte
     };
     ledc_timer_config(&timer_conf); // Aplica a configuração do timer
  
@@ -448,9 +436,9 @@ Aqui mora a solução do problema de hardware virtual descrito acima. A API nati
     ledc_channel_config(&ch_conf); // Aplica a configuração do canal, ligando efetivamente a GPIO 19 ao timer
 ```
 
-### Bloco 7: O Loop Infinito (FreeRTOS Task)
-O laço principal do microcontrolador repete-se perpetuamente. É feita a leitura do potenciômetro e sua conversão para uma escala de Hertz plausível para o motor de passo (10Hz a 1000Hz).
-Se o motor estiver ativo, atualizamos a frequência e o duty (512 num timer de 10 bits [1024] = exatos 50% de duty cycle). Se travado, cortamos o pulso para 0%. A execução é fechada com `vTaskDelay` para poupar a CPU, e o texto é formatado na tela OLED.
+### Bloco 7: Loop 
+O laço principal do microcontrolador se repete. É feita a leitura do potenciômetro e sua conversão para uma escala plausível para o motor de passo (10Hz a 1000Hz).
+Se o motor estiver ativo, atualizamos a frequência e o duty. Se travado, cortamos o pulso para 0%. A execução é fechada com `vTaskDelay` para poupar a CPU, e o texto é formatado na tela OLED.
 
 ```c
     while (1) {
@@ -493,26 +481,19 @@ Se o motor estiver ativo, atualizamos a frequência e o duty (512 num timer de 1
 ```
 ---
 
-## Simulação em Funcionamento (Wokwi)
+## Simulação em Funcionamento
  
 Abaixo estão os registros da simulação do projeto em funcionamento no Wokwi, evidenciando o sistema completo operando: leitura do potenciômetro alterando a velocidade do motor de passo em tempo real, acionamento da trava de emergência via botão/interrupção, e atualização das informações no display OLED.
  
-[Simulação do motor de passo rodando no Wokwi]<img width="943" height="787" alt="ativo" src="https://github.com/user-attachments/assets/3775fc05-606b-4d4f-8013-7fafeed7231a" />
-*Motor de passo em operação, com velocidade sendo ajustada pelo potenciômetro e status 
-"ATIVO" exibido no display OLED.*
+<img width="943" height="787" alt="ativo" src="https://github.com/user-attachments/assets/3775fc05-606b-4d4f-8013-7fafeed7231a" />
  
-[Trava de emergência acionada no Wokwi]<img width="1000" height="768" alt="trava" src="https://github.com/user-attachments/assets/1d82b55b-b46a-45a8-9759-0692595f9a01" />
-*Sistema com a trava de emergência acionada (botão pressionado), motor parado e display OLED exibindo "TRAVA".*
- 
+<img width="1000" height="768" alt="trava" src="https://github.com/user-attachments/assets/1d82b55b-b46a-45a8-9759-0692595f9a01" />
 
 ## Conclusão do Processo
 
-O desenvolvimento deste exercício não foi linear, e justamente por isso ele ilustra bem um processo real de engenharia embarcada: implementar, testar, diagnosticar e adaptar a solução conforme as limitações do ambiente disponível. O caminho percorrido pode ser resumido em três etapas:
+O desenvolvimento deste exercício não foi linear, e justamente por isso ele ilustra bem um processo real de embarcados: implementar, testar, e adaptar a solução conforme as limitações do ambiente disponível. O caminho percorrido pode ser resumido em três etapas:
  
-1. **Implementação conforme o enunciado.** A primeira versão do projeto foi construída inteiramente em torno da biblioteca `MCPWM`, conforme recomendado na proposta do exercício. Ao simular no Wokwi, no entanto, o pino `STEP` permanecia sem sinal — sintoma de que a chamada `mcpwm_set_frequency()`, disparada repetidamente pelas pequenas oscilações naturais do ADC, corrompia o timer virtual do simulador a cada atualização.
-2. **Diagnóstico com um teste de bancada mínimo.** Para não confundir um problema de software com um possível erro de montagem, o sinal `STEP` foi gerado manualmente com `gpio_set_level()`, sem nenhuma biblioteca de PWM envolvida. O motor girou normalmente, o que confirmou que a fiação, o driver A4988 e o pino `DIR` estavam corretos, isolando o defeito exclusivamente na interação entre a biblioteca MCPWM e o simulador Wokwi.
-3. **Adoção da biblioteca `LEDC` como solução final.** Com a causa raiz identificada, a geração de PWM foi migrada para a API LEDC, que lida de forma estável com atualizações de frequência em tempo de execução. O restante do sistema — leitura do potenciômetro via ADC, trava de emergência por interrupção externa, comunicação I2C com o display OLED e o log via UART — permaneceu inalterado, o que reforça que o problema estava mesmo restrito à camada de PWM.
-O resultado final é um sistema estável e integralmente funcional em simulação, capaz de controlar a velocidade do motor de passo em tempo real, sinalizar seu estado (ativo/travado) tanto no display OLED quanto no monitor serial, e reagir de forma imediata ao acionamento da trava de emergência. Mais do que isso, o processo evidencia uma competência central em desenvolvimento embarcado: a capacidade de diagnosticar se uma falha está no hardware, no software ou nas limitações do próprio ambiente de simulação, e de tomar uma decisão de engenharia justificada diante de uma ferramenta que não se comportou conforme o esperado.
+O resultado final é um sistema estável e integralmente funcional em simulação, capaz de controlar a velocidade do motor de passo em tempo real, sinalizar seu estado tanto no display OLED quanto no monitor serial, e reagir de forma imediata ao acionamento da trava de emergência.
 
 
 
