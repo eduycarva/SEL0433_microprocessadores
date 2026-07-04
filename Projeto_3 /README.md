@@ -440,9 +440,8 @@ Se o motor estiver ativo, atualizamos a frequência e o duty. Se travado, cortam
 ```c
     while (1) {
         int leitura_adc = adc1_get_raw(PINO_POTENCIOMETRO); // Lê o valor bruto do potenciômetro (0 a 4095)
-        
-        // Mapeia ADC (0 a 4095) para Frequência (10Hz a 1000Hz)
-        // Regra de três: proporção da leitura multiplicada pela faixa de 990Hz, somada ao piso de 10Hz
+       
+        // Regra de 3
         uint32_t frequencia = 10 + ((leitura_adc * 990) / 4095);
  
         if (!sistema_ativo) {
@@ -471,7 +470,6 @@ Se o motor estiver ativo, atualizamos a frequência e o duty. Se travado, cortam
         escrever_linha_oled(texto_modo, 2); // Escreve a página 2 do display
         escrever_linha_oled(texto_vel, 5);  // Escreve a velocidade atual na página 5 do display
  
-        // Libera a CPU para as outras tarefas do Sistema Operacional (FreeRTOS)
         vTaskDelay(pdMS_TO_TICKS(150)); // Aguarda 150ms
     }
 }
